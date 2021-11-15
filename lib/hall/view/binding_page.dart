@@ -134,12 +134,13 @@ class BindingsPageState extends State<BindingsPage> {
 
   static JSObjectCallAsFunctionCallbackDart? _alertDartFunc;
   Pointer _alert(
-      Pointer ctx,
-      Pointer function,
-      Pointer thisObject,
-      int argumentCount,
-      Pointer<Pointer> arguments,
-      Pointer<Pointer> exception) {
+    Pointer ctx,
+    Pointer function,
+    Pointer thisObject,
+    int argumentCount,
+    Pointer<Pointer> arguments,
+    Pointer<Pointer> exception
+  ) {
     String msg = 'No Message';
     if (argumentCount != 0) {
       msg = '';
@@ -193,6 +194,7 @@ class BindingsPageState extends State<BindingsPage> {
 
   // 运行JavaScript脚本
   String _runJs(String script) {
+    print(script);
     // 运行JavaScript脚本
     Pointer<Utf8> scriptCString = script.toNativeUtf8();
     var jsValueRef = jSEvaluateScript(
