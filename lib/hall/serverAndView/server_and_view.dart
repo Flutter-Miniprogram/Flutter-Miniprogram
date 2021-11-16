@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutterminiprogram/utils/jsEnv.dart';
 import 'package:flutterminiprogram/utils/server.dart';
@@ -12,6 +13,8 @@ class ServerAndView extends StatefulWidget {
 }
 
 class ServerAndViewState extends State<ServerAndView> {
+  late WebViewController _webViewController;
+
   @override
   void initState() {
     _init();
@@ -27,7 +30,17 @@ class ServerAndViewState extends State<ServerAndView> {
   void _init () async {
     FmServer.createServer();
 
-    JsEnv.create();
+    JsEnv.create(
+      /// 监听
+      subscribeEvent: ((message) {
+        print('callJS($message)');
+        print('callJS("$message")');
+        String commend = 'callJS("$message")';
+        _webViewController.evaluateJavascript(commend);
+      })
+    );
+
+    ///监听事件信息，内部执行传入回调函数
   }
 
   @override
@@ -38,6 +51,9 @@ class ServerAndViewState extends State<ServerAndView> {
       ),
       body: FmWebview(
         initialUrl: 'http://localhost:8000',
+        onWebviewChange: (WebViewController webviewController) {
+          _webViewController = webviewController;
+        }
       )
     );
   }

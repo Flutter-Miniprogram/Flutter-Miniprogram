@@ -51,6 +51,7 @@ flutter:
   assets:
     - miniprogram/index.html
     - miniprogram/style.css
+    - miniprogram/index.js
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

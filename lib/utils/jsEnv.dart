@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_jscore/jscore_bindings.dart';
 import 'package:ffi/ffi.dart';
 
@@ -11,9 +12,15 @@ class JsEnv {
   late Pointer globalContext;
   late Pointer globalObject;
 
+  ///内部成员
   bool hasInstall = false;
+  // 事件监听
+  late Function _subscribeEvent;
 
-  JsEnv.create() {
+  JsEnv.create({ Function? subscribeEvent }) {
+    // 初始化内部成员
+    _subscribeEvent = subscribeEvent ?? () {};
+
     // 创建js上下文
     if (!hasInstall) {
       contextGroup = jSContextGroupCreate();
@@ -25,21 +32,18 @@ class JsEnv {
       _registerMethod();
     }
 
-    _runJs();
+    _getJsFile();
   }
 
-  _runJs() {
-    String script = '''
-      function helloJsCore()
-      {
-        var years = 2000 + 20;
-        alert('Hello JavaScriptCore!', years);
-        flutter.print('Hello JavaScriptCore!');
-        return 'JSCore' + (2000 + 20);
-      }
-      helloJsCore();
-    ''';
+  _getJsFile() async {
+    /// 读取本地js文件
+    String filePath = 'miniprogram/index.js';
+    String script = await rootBundle.loadString(filePath);
 
+    _runJs(script);
+  }
+
+  _runJs(String script) {
     Pointer<Utf8> scriptCString = script.toNativeUtf8();
     var jsValueRef = jSEvaluateScript(
       globalContext,
@@ -50,7 +54,7 @@ class JsEnv {
       nullptr
     );
     malloc.free(scriptCString);
-    // 获取返回结果
+    /// 获取返回结果
     String result = _getJsValue(jsValueRef);
 
     print('result: $result');
@@ -154,9 +158,10 @@ class JsEnv {
       return 'null';
     }
     String result = String.fromCharCodes(Uint16List.view(
-        resultCString.cast<Uint16>().asTypedList(resultCStringLength).buffer,
-        0,
-        resultCStringLength));
+      resultCString.cast<Uint16>().asTypedList(resultCStringLength).buffer,
+      0,
+      resultCStringLength)
+    );
     jSStringRelease(resultJsString);
     return result;
   }
@@ -173,33 +178,27 @@ class JsEnv {
     if (argumentCount != 0) {
       msg = '';
       for (int i = 0; i < argumentCount; i++) {
-        if (i != 0) {
-          msg += '\n';
-        }
         var jsValueRef = arguments[i];
         msg += _getJsValue(jsValueRef);
       }
     }
-    print('msg$msg');
-    // showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return AlertDialog(
-    //         title: Text('Alert'),
-    //         content: Text(msg),
-    //       );
-    //     });
+    
+    Future.delayed(Duration(milliseconds: 2000), () {
+      _subscribeEvent(msg);
+    });
+
     return nullptr;
   }
 
   /// 绑定flutter.print()函数
   static Pointer flutterPrint(
-      Pointer ctx,
-      Pointer function,
-      Pointer thisObject,
-      int argumentCount,
-      Pointer<Pointer> arguments,
-      Pointer<Pointer> exception) {
+    Pointer ctx,
+    Pointer function,
+    Pointer thisObject,
+    int argumentCount,
+    Pointer<Pointer> arguments,
+    Pointer<Pointer> exception
+  ) {
     if (_printDartFunc != null) {
       _printDartFunc!(
           ctx, function, thisObject, argumentCount, arguments, exception);
@@ -210,12 +209,13 @@ class JsEnv {
   static JSObjectCallAsFunctionCallbackDart? _printDartFunc;
 
   Pointer _print(
-      Pointer ctx,
-      Pointer function,
-      Pointer thisObject,
-      int argumentCount,
-      Pointer<Pointer> arguments,
-      Pointer<Pointer> exception) {
+    Pointer ctx,
+    Pointer function,
+    Pointer thisObject,
+    int argumentCount,
+    Pointer<Pointer> arguments,
+    Pointer<Pointer> exception
+  ) {
     if (argumentCount > 0) {
       print(_getJsValue(arguments[0]));
     }

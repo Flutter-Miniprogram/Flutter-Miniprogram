@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class FmWebview extends StatelessWidget {
   String initialUrl;
+  final Completer<WebViewController> _controller =
+      Completer<WebViewController>();
+  Function? onWebviewChange = () {};
 
   FmWebview({
     required this.initialUrl,
+    this.onWebviewChange,
   });
 
   @override
@@ -23,19 +29,34 @@ class FmWebview extends StatelessWidget {
         }
         return NavigationDecision.navigate;
       },
-      onPageFinished: (url) => {},
+      onWebViewCreated: (WebViewController webViewController) {
+        ///当webview创建完后，创建controller
+        _controller.complete(webViewController);
+      },
+      onPageFinished: (url) => {
+        ///当HTML加载完毕之后调用callJS方法
+        _controller.future.then((controller) {
+
+          Function _onWebviewChange = onWebviewChange ?? () {};
+          _onWebviewChange(controller);
+
+          // controller
+          //   .evaluateJavascript('callJS("visible")')
+          //   .then((result) {});
+        })
+      },
       onWebResourceError: (error) => {},
     );
   }
 
   JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
     return JavascriptChannel(
-        name: 'Native',
-        onMessageReceived: (JavascriptMessage message) {
-          // ignore: deprecated_member_use
-          Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(message.message)),
-          );
-        });
+      name: 'Native',
+      onMessageReceived: (JavascriptMessage message) {
+        // ignore: deprecated_member_use
+        Scaffold.of(context).showSnackBar(
+          SnackBar(content: Text(message.message)),
+        );
+      });
   }
 }

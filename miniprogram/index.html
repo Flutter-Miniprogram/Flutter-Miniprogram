@@ -14,10 +14,11 @@
 <script>
   var dom = document.querySelector('.unique');
 
-  Native.postMessage('123');
+  // Native.postMessage('123');
 
-  function alert(value) {
-    alert(value);
+  function callJS(value) {
+    console.log(value);
+    dom.innerHTML = value;
   }
 </script>
 </html>
