@@ -5,8 +5,11 @@ import 'package:http_server/http_server.dart';
 class FmServer {
   late HttpServer _server;
 
-  FmServer.createServer() {
-    HttpServer.bind('0.0.0.0', 8000).then((server) {
+  FmServer.createServer({
+    required int port,
+    required List<ServerSource> sourceList,
+  }) {
+    HttpServer.bind('0.0.0.0', port, shared: true).then((server) {
 
       this._server = server;
 
@@ -17,34 +20,27 @@ class FmServer {
       print('Request URI'); 
 
       /// [response] rule
-      switch (body.request.uri.toString()) {
-        case '/style.css': {
-            String filePath = 'miniprogram/style.css';
-            String fileHtmlContents = await rootBundle.loadString(filePath);
 
-            body.request.response.statusCode = 200;
-            body.request.response.headers.set("Content-Type", "text/css; charset=utf-8");
-            body.request.response.write(fileHtmlContents);
-            body.request.response.close();
-            break;
-        }
-        case '/':
-          {
-            String filePath = 'miniprogram/index.html';
-            String fileHtmlContents = await rootBundle.loadString(filePath);
+      String _sourcePath = body.request.uri.toString();
 
-            body.request.response.statusCode = 200;
-            body.request.response.headers.set("Content-Type", "text/html; charset=utf-8");
-            body.request.response.write(fileHtmlContents);
-            body.request.response.close();
-            break;
-          }
-        default: {
-          body.request.response.statusCode = 404;
-          body.request.response.write('Not found');
-          body.request.response.close();
-        }
-      }});
+      List _sourceMap = sourceList;
+      int index = _sourceMap.indexWhere((element) => element.path == _sourcePath);
+
+      if (index > -1) {
+        ServerSource _source = sourceList[index];
+        String filePath = _source.rootPath ?? '';
+        String fileHtmlContents = await rootBundle.loadString(filePath);
+
+        body.request.response.statusCode = 200;
+        body.request.response.headers.set("Content-Type", _source.header?.contentType ?? "text/html; charset=utf-8");
+        body.request.response.write(fileHtmlContents);
+        body.request.response.close();
+      } else {
+        body.request.response.statusCode = 404;
+        body.request.response.write('Not found');
+        body.request.response.close();
+      }
+      });
     });
   }
 
@@ -54,5 +50,48 @@ class FmServer {
     } catch(e) {
       print(e);
     }
+  }
+}
+
+///@author: xxx
+class ServerSourceHeader {
+  String ? contentType;
+
+  ServerSourceHeader({
+    this.contentType,
+  });
+  ServerSourceHeader.fromJson(Map < String, dynamic > json) {
+    contentType = json["content-type"]?.toString();
+  }
+  Map < String, dynamic > toJson() {
+    final Map < String, dynamic > data = Map < String, dynamic > ();
+    data["content-type"] = contentType;
+    return data;
+  }
+}
+
+class ServerSource {
+  String ? path;
+  String ? rootPath;
+  ServerSourceHeader ? header;
+
+  ServerSource({
+    this.path,
+    this.rootPath,
+    this.header,
+  });
+  ServerSource.fromJson(Map < String, dynamic > json) {
+    path = json["path"]?.toString();
+    rootPath = json["rootPath"]?.toString();
+    header = (json["header"] != null) ? ServerSourceHeader.fromJson(json["header"]) : null;
+  }
+  Map < String, dynamic > toJson() {
+    final Map < String, dynamic > data = Map < String, dynamic > ();
+    data["path"] = path;
+    data["rootPath"] = rootPath;
+    if (header != null) {
+      data["header"] = header?.toJson();
+    }
+    return data;
   }
 }

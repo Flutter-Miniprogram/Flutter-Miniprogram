@@ -1,6 +1,6 @@
 function test() {
   var years = 2000 + 21;
-  alert(`my name cuishijie${years}`);
+  alert(`This year is ${years}`);
   flutter.print('my name cuishijie');
   return 'name' + (2000 + 21);
 }

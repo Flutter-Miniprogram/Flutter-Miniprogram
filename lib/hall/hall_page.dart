@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutterminiprogram/hall/route/route.dart';
 import 'package:flutterminiprogram/hall/server/server.dart';
 import 'package:flutterminiprogram/hall/serverAndView/server_and_view.dart';
+import 'package:flutterminiprogram/hall/temporary/temporary.dart';
 import 'package:flutterminiprogram/hall/view/binding_page.dart';
 import 'package:flutterminiprogram/hall/webview/webview_page.dart';
 
@@ -19,6 +21,15 @@ class HallPageState extends State<HallPage> {
         Divider(
           height: 0.5,
           thickness: 0.5,
+        ),
+        ListTile(
+          title: Text('Route'),
+          subtitle: Text('添加路由'),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return HallRoute();
+            }));
+          },
         ),
         ListTile(
           title: Text('Server & View'),
@@ -53,6 +64,15 @@ class HallPageState extends State<HallPage> {
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
               return BindingsPage();
+            }));
+          },
+        ),
+        ListTile(
+          title: Text('Temporary page'),
+          subtitle: Text('Temporary page'),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return Temporary();
             }));
           },
         ),

@@ -28,19 +28,15 @@ class ServerAndViewState extends State<ServerAndView> {
   }
 
   void _init () async {
-    FmServer.createServer();
+    // FmServer.createServer();
 
     JsEnv.create(
-      /// 监听
+      /// 监听JS传递过来的信息
       subscribeEvent: ((message) {
-        print('callJS($message)');
-        print('callJS("$message")');
         String commend = 'callJS("$message")';
         _webViewController.evaluateJavascript(commend);
       })
     );
-
-    ///监听事件信息，内部执行传入回调函数
   }
 
   @override
