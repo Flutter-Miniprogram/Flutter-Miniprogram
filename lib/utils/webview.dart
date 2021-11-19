@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutterminiprogram/JsBridge/jsBridgeEntity.dart';
+import 'package:flutterminiprogram/utils/javascriptChannel.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class FmWebview extends StatelessWidget {
@@ -21,7 +20,7 @@ class FmWebview extends StatelessWidget {
     return WebView(
       javascriptMode: JavascriptMode.unrestricted,
       javascriptChannels: <JavascriptChannel>{
-        _nativeJavascriptChannel(context),
+        JavascriptChannelSingle.instance,
       },
       initialUrl: initialUrl,
       navigationDelegate: (NavigationRequest request) {
@@ -49,17 +48,5 @@ class FmWebview extends StatelessWidget {
       },
       onWebResourceError: (error) => {},
     );
-  }
-
-  JavascriptChannel _nativeJavascriptChannel(BuildContext context) {
-    return JavascriptChannel(
-      name: 'Native',
-      onMessageReceived: (JavascriptMessage message) {
-        JsBridge info = JsBridge.fromJson(jsonDecode(message.message));
-        // ignore: deprecated_member_use
-        Scaffold.of(context).showSnackBar(
-          SnackBar(content: Text(message.message)),
-        );
-      });
   }
 }

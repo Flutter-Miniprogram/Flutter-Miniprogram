@@ -3,50 +3,58 @@ import 'package:flutter/services.dart';
 import 'package:http_server/http_server.dart';
 
 class FmServer {
-  late HttpServer _server;
+  List<HttpServer> _serverList = [];
+  int port = 8000;
 
   FmServer.createServer({
-    required int port,
     required List<ServerSource> sourceList,
+    Function? onSuccess
   }) {
     HttpServer.bind('0.0.0.0', port, shared: true).then((server) {
+      /// 推入队列
+      this._serverList.add(server);
 
-      this._server = server;
+      /// port自增
+      port += 1;
 
+      /// 成功回调函数
+      Function callBackSuccess = onSuccess ?? () {};
+      callBackSuccess(server);
+      
+      /// log日志
       print('Server running at: ${server.address.address}:${server.address.host}');
+
+      /// 监听资源请求
       server.transform(HttpBodyHandler()).listen((HttpRequestBody body) async {
+        /// [request] uri
+        String _sourcePath = body.request.uri.toString();
 
-      /// [request] uri
-      print('Request URI'); 
+        List _sourceMap = sourceList;
+        int index = _sourceMap.indexWhere((element) => element.path == _sourcePath);
 
-      /// [response] rule
+        if (index > -1) {
+          ServerSource _source = sourceList[index];
+          String filePath = _source.rootPath ?? '';
+          String fileHtmlContents = await rootBundle.loadString(filePath);
 
-      String _sourcePath = body.request.uri.toString();
-
-      List _sourceMap = sourceList;
-      int index = _sourceMap.indexWhere((element) => element.path == _sourcePath);
-
-      if (index > -1) {
-        ServerSource _source = sourceList[index];
-        String filePath = _source.rootPath ?? '';
-        String fileHtmlContents = await rootBundle.loadString(filePath);
-
-        body.request.response.statusCode = 200;
-        body.request.response.headers.set("Content-Type", _source.header?.contentType ?? "text/html; charset=utf-8");
-        body.request.response.write(fileHtmlContents);
-        body.request.response.close();
-      } else {
-        body.request.response.statusCode = 404;
-        body.request.response.write('Not found');
-        body.request.response.close();
-      }
+          body.request.response.statusCode = 200;
+          body.request.response.headers.set("Content-Type", _source.header?.contentType ?? "text/html; charset=utf-8");
+          body.request.response.write(fileHtmlContents);
+          body.request.response.close();
+        } else {
+          body.request.response.statusCode = 404;
+          body.request.response.write('Not found');
+          body.request.response.close();
+        }
       });
     });
   }
 
   FmServer.closeServer() {
     try {
-      this._server.close();
+      this._serverList.forEach((element) {
+        element.close();
+      });
     } catch(e) {
       print(e);
     }
@@ -70,6 +78,7 @@ class ServerSourceHeader {
   }
 }
 
+/// Server的实体类
 class ServerSource {
   String ? path;
   String ? rootPath;
