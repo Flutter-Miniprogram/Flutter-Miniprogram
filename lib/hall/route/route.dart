@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutterminiprogram/utils/history.dart';
 import 'package:flutterminiprogram/utils/jsEnv.dart';
 import 'package:flutterminiprogram/utils/server.dart';
 import 'package:flutterminiprogram/utils/webview.dart';
@@ -53,6 +52,7 @@ class HallRouteState extends State<HallRoute> {
       /// 监听JS传递过来的信息
       subscribeEvent: ((message) {
         String commend = 'callJS("$message")';
+        /// 11月19日
         // _webViewController.evaluateJavascript(commend);
       })
     );
@@ -75,8 +75,7 @@ class HallRouteState extends State<HallRoute> {
                 width: double.infinity,
                 height: double.infinity,
                 child: FmWebview(
-                  // initialUrl: address,
-                  initialUrl: 'https://kefu.ikbase.cn/feedback/index.html?uid=16264075323754&appid=10027&color=EEB872#home?uid=16264075323754&notanimation=1',
+                  initialUrl: address,
                   onWebviewChange: (WebViewController webviewController) {
                     // _webViewController = webviewController;
                   },
