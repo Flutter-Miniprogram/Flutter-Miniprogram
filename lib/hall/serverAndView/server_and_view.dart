@@ -23,7 +23,7 @@ class ServerAndViewState extends State<ServerAndView> {
 
   @override
   void dispose() {
-    FmServer.closeServer();
+    FmServer.closeAllServer();
     super.dispose();
   }
 

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <h1 class="unique">Photo Camera</h1>
+  <h1 class="unique">HTML Page</h1>
   <img src="https://img.ikstatic.cn/MTYzNzIyNjg0NDE0MiMzODYjcG5n.png" alt="">
   <Button class="routeButton">跳转第二页</Button>
 </body>
@@ -16,21 +16,15 @@
   var dom = document.querySelector('.unique');
   var buttonDom = document.querySelector('.routeButton');
   
+  /// 点击按钮发送bridge routePush
   buttonDom.addEventListener('click', function() {
     Native.postMessage(JSON.stringify({
       method: 'routePush',
-      data: '/secondPage',
-      success: function() {
-        console.log('success')
-      },
-      error: function() {
-        console.log('error')
-      }
+      data: 'miniprogram/second.html',
     }))
   });
 
   function callJS(value) {
-    console.log(value);
     dom.innerHTML = value;
   }
 </script>

@@ -7,11 +7,24 @@
   <title>Photo Page Two</title>
   <style>
     html{
-      background: #ccc;
+      background: #FFF;
     }
   </style>
 </head>
 <body>
   <h1>Photo Page Two</h1>
+  <Button class="routeButton">返回第一页</Button>
 </body>
+<script>
+  var buttonDom = document.querySelector('.routeButton');
+  
+  // 点击按钮发送bridge routeBack
+  // 让Navie History 执行弹出操作
+  buttonDom.addEventListener('click', function() {
+    Native.postMessage(JSON.stringify({
+      method: 'routeBack',
+      data: '',
+    }))
+  });
+</script>
 </html>

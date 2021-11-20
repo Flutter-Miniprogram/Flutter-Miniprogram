@@ -41,7 +41,7 @@ class HallPageState extends State<HallPage> {
         ),
         ListTile(
           title: Text('Server Page'),
-          subtitle: Text('create a port server'),
+          subtitle: Text('启动一个端口并读取本地文件Example'),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
               return Server();
@@ -50,7 +50,7 @@ class HallPageState extends State<HallPage> {
         ),
         ListTile(
           title: Text('Jscore Bindings Page'),
-          subtitle: Text('Jscore binding Page'),
+          subtitle: Text('Jscore运行Example'),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
               return BindingsPage();
@@ -59,7 +59,7 @@ class HallPageState extends State<HallPage> {
         ),
         ListTile(
           title: Text('Temporary page'),
-          subtitle: Text('Temporary page'),
+          subtitle: Text('临时目录用于任意代码调试'),
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
               return Temporary();

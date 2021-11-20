@@ -2,17 +2,17 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:http_server/http_server.dart';
 
-class FmServer {
-  List<HttpServer> _serverList = [];
-  int port = 8000;
+int port = 8000;
+List<HttpServer> _serverList = [];
 
+class FmServer {
   FmServer.createServer({
     required List<ServerSource> sourceList,
     Function? onSuccess
   }) {
     HttpServer.bind('0.0.0.0', port, shared: true).then((server) {
       /// 推入队列
-      this._serverList.add(server);
+      _serverList.add(server);
 
       /// port自增
       port += 1;
@@ -50,14 +50,28 @@ class FmServer {
     });
   }
 
-  FmServer.closeServer() {
+   static void closeAllServer() {
     try {
-      this._serverList.forEach((element) {
+      _serverList.forEach((element) {
         element.close();
       });
     } catch(e) {
       print(e);
     }
+  }
+
+  static void cancelLastServer({ Function? onSuccess }) {
+    HttpServer lastServer = _serverList[_serverList.length - 1];
+
+    int removePort = lastServer.port;
+
+    lastServer.close();
+
+    /// 移除serverList列表最后server
+    _serverList.removeLast();
+    
+    Function _onSuccessCallback = onSuccess ?? () {};
+    _onSuccessCallback(removePort);
   }
 }
 
