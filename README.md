@@ -34,3 +34,4 @@ Flutter项目搭建小程序底层架构项目
 ## About
 
 - [开发小组文档(语雀)](https://www.yuque.com/tatgr4)
+- ***LICENSE GNU AFFERO GENERAL PUBLIC LICENSE Version 3***
