@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutterminiprogram/utils/jsEnv.dart';
 import 'package:flutterminiprogram/utils/server.dart';
@@ -28,7 +29,15 @@ class ServerAndViewState extends State<ServerAndView> {
   }
 
   void _init () async {
-    // FmServer.createServer();
+    FmServer.createServer(
+      sourceList: [
+        ServerSource(path: '/', rootPath: 'miniprogram/index.html'),
+        ServerSource(path: '/style.css', rootPath: 'miniprogram/style.css', header: ServerSourceHeader(contentType: 'text/css; charset=utf-8'))
+      ],
+      onSuccess: (HttpServer server) {
+        print(server);
+      }
+    );
 
     JsEnv.create(
       /// 监听JS传递过来的信息
