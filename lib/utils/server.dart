@@ -31,15 +31,16 @@ class FmServer {
 
         List _sourceMap = sourceList;
         int index = _sourceMap.indexWhere((element) => element.path == _sourcePath);
+        print(sourceList);
 
         if (index > -1) {
           ServerSource _source = sourceList[index];
           String filePath = _source.rootPath ?? '';
-          String fileHtmlContents = await rootBundle.loadString(filePath);
+          String fileContents = await rootBundle.loadString(filePath);
 
           body.request.response.statusCode = 200;
           body.request.response.headers.set("Content-Type", _source.header?.contentType ?? "text/html; charset=utf-8");
-          body.request.response.write(fileHtmlContents);
+          body.request.response.write(fileContents);
           body.request.response.close();
         } else {
           body.request.response.statusCode = 404;
