@@ -31,6 +31,7 @@ dependencies:
   flutter_jscore: ^1.0.0
   webview_flutter: ^2.0.13
   http_server: ^1.0.0
+  html: 0.15.0
 
 dev_dependencies:
   flutter_test:
