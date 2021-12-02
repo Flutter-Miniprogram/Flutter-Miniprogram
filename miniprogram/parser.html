@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script>
+    window.exparser = {
+      components: {},
+      register: function(e) {
+        // 创建root
+        var element = document.createElement(e.is);
+        // 转化shadow-DOM
+        var shadow = element.attachShadow({mode: 'open'});
+        // 编译template - loop
+        function loopParser(children, root) {
+
+          children.forEach(function(child) {
+            var childDOM = document.createElement(child.name);
+            // 添加样式
+            Object.keys(child.style).forEach(function(key) {
+              childDOM.style[key] = child.style[key];
+            });
+
+            // 如果有文案，添加文案
+            if (child.data) {
+              childDOM.innerText = child.data;
+            }
+
+            // loop判定
+            if (child.children) {
+              loopParser(child.children, childDOM);
+            }
+
+            // 添加元素
+            root.appendChild(childDOM);
+          });
+        }
+
+        loopParser(e.template(), shadow);
+
+        this.components[e.is] = element;
+      },
+      createVirtualNode: function(data) {
+        // 这里应该通过generateFunc获取
+        var virtualNode = {
+          tag: 'wx-button',
+          children: '这是按钮默认文案'
+        }
+
+        // loop-virtualDOM
+        const getVirtualDOM = (root) => {
+          var element = this.components[root.tag];
+          return element;
+        }
+
+        var virtualDOM = getVirtualDOM(virtualNode);
+
+        document.body.appendChild(virtualDOM);
+      }
+    }
+
+    window.exparser.register({
+      is: 'wx-button',
+      template: function() {
+        return [{
+          name: 'div',
+          style: {
+            padding: '20px',
+            background: '#1890ff',
+            textAlign: 'center',
+            borderRadius: '10px',
+          },
+          children: [{
+            name: 'span',
+            style: {
+              color: '#ffffff'
+            },
+            data: '默认文案'
+          }]
+        }]
+      }
+    })
+  </script>
+  <title>Parser Document</title>
+</head>
+<body>
+</body>
+</html>

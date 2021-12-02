@@ -3,9 +3,13 @@
 /// pageFrame模版模块必备方法
 /// 如果想体验可以放在hall_page入口进行体验
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutterminiprogram/jsBridge/jsBridgeEntity.dart';
+import 'package:flutterminiprogram/utils/javascriptChannel.dart';
+import 'package:flutterminiprogram/utils/webview.dart';
 import 'package:http_server/http_server.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:html/dom.dart' as DOM;
@@ -20,12 +24,16 @@ class HtmlParser extends StatefulWidget {
 
 class HtmlParserState extends State<HtmlParser> {
   late HttpServer server;
-  bool showWebview = false;
-  bool foundFile = false;
+  /// channel
+  late JavascriptChannel channel;
+  /// webview controller
+  late WebViewController _webViewController;
 
   @override
   void initState() {
     _initHttpServer();
+    _initChannel();
+
     super.initState();
   }
 
@@ -48,19 +56,9 @@ class HtmlParserState extends State<HtmlParser> {
 
       /// [response] rule
       switch (body.request.uri.toString()) {
-        case '/style.css': {
-            String filePath = 'miniprogram/style.css';
-            String fileHtmlContents = await rootBundle.loadString(filePath);
-
-            body.request.response.statusCode = 200;
-            body.request.response.headers.set("Content-Type", "text/css; charset=utf-8");
-            body.request.response.write(fileHtmlContents);
-            body.request.response.close();
-            break;
-        }
         case '/':
           {
-            String filePath = 'miniprogram/index.html';
+            String filePath = 'miniprogram/parser.html';
             String fileHtmlContents = await rootBundle.loadString(filePath);
 
             /// [analyze html]💥
@@ -71,15 +69,27 @@ class HtmlParserState extends State<HtmlParser> {
             /// [2] 通过replace方法替换指定html备注（例如: <!-- remark -->）
             DOM.Document document = parse(fileHtmlContents);
 
-            String scriptStr = '''
+            // 创建generateFuncReady监听
+            String generateFuncReadyScript = '''
               <script>
-                var dom = document.querySelector('.unique');
-                dom.innerHTML = '注入脚本修改DOM标题';
-              </script>
+                (function() {
+                  if (document.readyState === 'complete') {
+                    Native.postMessage(JSON.stringify({
+                      method: 'DOCUMENT_READY',
+                    }))
+                  } else {
+                    const fn = () => {
+                      Native.postMessage(JSON.stringify({
+                        method: 'DOCUMENT_READY',
+                      }))
+                      window.removeEventListener('load', fn)
+                    }
+                    window.addEventListener('load', fn)
+                  }
+                })()
             ''';
 
-            document.body?.nodes.addLast(parseFragment(scriptStr));
-            document.body?.nodes.insert(1, parseFragment("<p>这句话是parser后插入的</p>"));
+            document.body?.nodes.add(parseFragment(generateFuncReadyScript));
 
             String changeFileContents = document.outerHtml;
 
@@ -98,24 +108,32 @@ class HtmlParserState extends State<HtmlParser> {
     });
   }
 
+  void _initChannel() {
+    /// 创建channel
+    channel = JavascriptChannelSingle.createChannel(
+      onMessageReceived: (JsBridge bridge) {
+        /// [bridge] DOCUMENT_READY
+        /// 传递动态数据
+        String commend = 'window.exparser.createVirtualNode()';
+        Future.delayed(Duration(milliseconds: 300), () {
+          _webViewController.evaluateJavascript(commend);
+        });
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Server Page'),
       ),
-      body: WebView(
-        javascriptMode: JavascriptMode.unrestricted,
-        initialUrl: 'http://0.0.0.0:8000',
-        navigationDelegate: (NavigationRequest request) {
-          if (request.url.startsWith('zhixing://')) {
-            // do something
-            return NavigationDecision.prevent;
-          }
-          return NavigationDecision.navigate;
+      body: FmWebview(
+        initialUrl: 'http://localhost:8000',
+        onWebviewChange: (WebViewController webviewController) {
+          _webViewController = webviewController;
         },
-        onPageFinished: (url) => {},
-        onWebResourceError: (error) => {},
+        channel: channel,
       )
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterminiprogram/hall/parser/html_parser.dart';
 import 'package:flutterminiprogram/hall/route/route.dart';
 import 'package:flutterminiprogram/hall/server/server.dart';
 import 'package:flutterminiprogram/hall/serverAndView/server_and_view.dart';
@@ -20,6 +21,15 @@ class HallPageState extends State<HallPage> {
         Divider(
           height: 0.5,
           thickness: 0.5,
+        ),
+        ListTile(
+          title: Text('Parser'),
+          subtitle: Text('Parser实例'),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return HtmlParser();
+            }));
+          },
         ),
         ListTile(
           title: Text('Route'),
