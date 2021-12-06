@@ -114,10 +114,13 @@ class HtmlParserState extends State<HtmlParser> {
       onMessageReceived: (JsBridge bridge) {
         /// [bridge] DOCUMENT_READY
         /// 传递动态数据
-        String commend = 'window.exparser.createVirtualNode()';
-        Future.delayed(Duration(milliseconds: 300), () {
-          _webViewController.evaluateJavascript(commend);
-        });
+        print('bridge.method: ${bridge.method}');
+        if (bridge.method == 'DOCUMENT_READY') {
+          String command = 'window.exparser.createVirtualNode()';
+          Future.delayed(Duration(milliseconds: 300), () {
+            _webViewController.evaluateJavascript(command);
+          });
+        }
       }
     );
   }
@@ -126,7 +129,7 @@ class HtmlParserState extends State<HtmlParser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Server Page'),
+        title: Text('Parser Page'),
       ),
       body: FmWebview(
         initialUrl: 'http://localhost:8000',
