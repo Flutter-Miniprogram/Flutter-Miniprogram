@@ -68,7 +68,7 @@ class HtmlParserState extends State<HtmlParser> {
         if (bridge.method == 'DOCUMENT_READY') {
           /// [bridge] DOCUMENT_READY
           /// 获取初始动态数据
-          /// 插入wxml.js等
+          /// 插入wxml.js等 
           String wxml = './wxml.js';
           String scriptType = 'text/javascript';
           String commend = 'window.foundtion.insertDocumentHeadChild("$wxml", "$scriptType")';
