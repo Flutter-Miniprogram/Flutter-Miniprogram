@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>PageFrame模版</title>
+  <!-- debug vconsole -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.9.0/vconsole.min.js"></script>
+  <script>
+      var vConsole = new VConsole();
+  </script>
+  <script type="text/javascript" src="./WAWebview.js"></script>
+  <!-- wxml.js -->
+</head>
+<body>
+  pageFrame
+</body>
+<script>
+  if (document.readyState === 'complete') {
+    native.invoke('DOCUMENT_READY');
+  } else {
+    const fn = () => {
+      native.invoke('DOCUMENT_READY');
+      window.removeEventListener('load', fn);
+    }
+    window.addEventListener('load', fn);
+  }
+</script>
+</html>

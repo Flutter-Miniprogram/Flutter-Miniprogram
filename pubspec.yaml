@@ -55,6 +55,9 @@ flutter:
     - miniprogram/index.js
     - miniprogram/second.html
     - miniprogram/parser.html
+    - miniprogram/pageFrame/pageFrame.html
+    - miniprogram/pageFrame/WAWebview.js
+    - miniprogram/pageFrame/wxml.js
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

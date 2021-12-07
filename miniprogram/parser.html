@@ -6,10 +6,13 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script>
     window.exparser = {
-      components: {},
+      components: {
+        /// 会有很多的自定义组件初始化完毕。
+        /// 都是一个一个小的shadow-dom
+      },
       register: function(e) {
         // 创建root
-        var element = document.createElement(e.is);
+        var element = document.createElement(e.is); // wx-button
         // 转化shadow-DOM
         var shadow = element.attachShadow({mode: 'open'});
         // 编译template - loop
@@ -39,6 +42,7 @@
 
         loopParser(e.template(), shadow);
 
+        /// 这里应该挂载一个生成组件函数。因为组件也需要接收动态参数。
         this.components[e.is] = element;
       },
       createVirtualNode: function(data) {
@@ -81,6 +85,7 @@
         }]
       }
     })
+    // ....很多，组件都在这里插入
   </script>
   <title>Parser Document</title>
 </head>
