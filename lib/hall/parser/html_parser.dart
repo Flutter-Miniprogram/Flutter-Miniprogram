@@ -71,9 +71,14 @@ class HtmlParserState extends State<HtmlParser> {
           /// 插入wxml.js等 
           String wxml = './wxml.js';
           String scriptType = 'text/javascript';
-          String commend = 'window.foundtion.insertDocumentHeadChild("$wxml", "$scriptType")';
+          String insertDocumentHeadChild = 'window.foundtion.insertDocumentHeadChild("$wxml", "$scriptType")';
+        
+          /// 这里拷贝一份动态数据下发到generateFuncReady CE监听
+          String listenCustomEventGenerateFunc = 'window.exparser.listenCustomEventGenerateFunc("这是动态数据")';
+
           Future.delayed(Duration(milliseconds: 300), () {
-            _webViewController.evaluateJavascript(commend);
+            _webViewController.evaluateJavascript(insertDocumentHeadChild);
+            _webViewController.evaluateJavascript(listenCustomEventGenerateFunc);
           });
         }
       }
@@ -99,7 +104,9 @@ class HtmlParserState extends State<HtmlParser> {
                 child: FmWebview(
                   initialUrl: address,
                   onWebviewChange: (WebViewController webviewController) {
-                    _webViewController = webviewController;
+                    setState(() {
+                      _webViewController = webviewController;
+                    });
                   },
                   channel: channel,
                 ),

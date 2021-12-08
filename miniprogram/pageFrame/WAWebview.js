@@ -1,13 +1,13 @@
 (function() {
   window.exparser = {
     /**
-     * 会有很多的自定义组件初始化完毕。
-     * 都是一个一个小的shadow-dom
+     * @desc 会有很多的自定义组件初始化完毕。
+     * @remark 都是一个一个小的shadow-dom
      */
     components: {},
     register: function(e) {
       // 创建root
-      var element = document.createElement(e.is); // wx-button
+      var element = document.createElement(e.is);
       // 转化shadow-DOM
       var shadow = element.attachShadow({mode: 'open'});
       // 编译template - loop
@@ -55,12 +55,22 @@
       var virtualDOM = getVirtualDOM(virtualNode);
   
       document.body.appendChild(virtualDOM);
+    },
+    listenCustomEventGenerateFunc: (dynamicData) => {
+      document.addEventListener('generateFuncReady', function(e) {
+        const targetDetail = e.detail;
+        /**
+         * @desc 获取动态参数
+         */
+        console.log('dynamicData', dynamicData);
+        console.log('generateFunc', typeof targetDetail.generateFunc === 'function');
+      })
     }
   }
   
   /**
-   * 向组件库中注册组件
-   * 注册的组件会存储在注册表(exparser.components)中
+   * @desc 向组件库中注册组件
+   * @desc 注册的组件会存储在注册表(exparser.components)中
    */
   window.exparser.register({
     is: 'wx-button',
@@ -95,8 +105,8 @@
       native.invoke(`insertDocumentHeadChild load! src: ${src} 、 type:${type}`);
 
       /**
-       * 创建业务script并插入
-       * 后面改为批量模式
+       * @desc 创建业务script并插入
+       * @desc 后面改为批量模式
        */
       const scriptNode = document.createElement('script');
       scriptNode.type = type || 'text/javascript';
@@ -126,7 +136,7 @@
         }
       `;
       /**
-       * @desc 这里插入的时候获取不到$gwx,这个问题需要排查
+       * @question 这里插入的时候获取不到$gwx,这个问题需要排查
        */
       setTimeout(() => {
         document.head.appendChild(scriptNode);
@@ -142,9 +152,13 @@
 
   window.native = {
     invoke: function(method) {
-      Native.postMessage(JSON.stringify({
-        method: method,
-      }))
+      try {
+        Native.postMessage(JSON.stringify({
+          method: method,
+        }))
+      } catch (e) {
+        console.log('[To Developer]- invoke Error', e);
+      }
     }
   }
 })()

@@ -1,8 +1,5 @@
 // wxml.js
 // $gwx()
-Native.postMessage(JSON.stringify({
-  method: '$gwx load!',
-}))
 /*v0.5vv_20200413_syb_scopedata*/window.__wcc_version__='v0.5vv_20200413_syb_scopedata';window.__wcc_version_info__={"customComponents":true,"fixZeroRpx":true,"propValueDeepCopy":false};
 var $gwxc
 var $gaic={}
